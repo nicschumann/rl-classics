@@ -2,7 +2,7 @@ import math
 import random
 
 from lib.memory import ReplayMemory
-from lib.environment import reset, step, random_action, render, STATE_SPACE_SIZE, ACTION_SPACE_SIZE
+from lib.cartpole import reset, step, random_action, render, STATE_SPACE_SIZE, ACTION_SPACE_SIZE
 
 import torch
 import torch.nn as nn
@@ -123,7 +123,7 @@ def prepare_minibatch(batch):
 
 # RL Loop
 
-for i in tqdm(range(total_episodes), desc="running episodes"):
+for i in tqdm(range(total_episodes), desc="q-value function"):
 
     epsilon = get_exponential_decay(i)
     s, done = reset(), False

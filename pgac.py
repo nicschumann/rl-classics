@@ -2,7 +2,7 @@ import math
 import random
 
 from lib.memory import ReplayMemory
-from lib.environment import reset, step, random_action, render, STATE_SPACE_SIZE, ACTION_SPACE_SIZE
+from lib.cartpole import reset, step, random_action, render, STATE_SPACE_SIZE, ACTION_SPACE_SIZE
 
 import torch
 import torch.nn as nn
@@ -18,8 +18,9 @@ from tqdm import tqdm
 # MDP and RL Hyperparameters
 total_episodes = 10000
 alpha = 0.001
-gamma = 0.95
-batch_size = 64
+beta = 0.001
+gamma = 0.997
+batch_size = 128
 
 
 # NN Hyperparameters
@@ -59,8 +60,8 @@ v_opt = opt.Adam(v.parameters(), lr=alpha)
 v_sched = StepLR(v_opt, step_size=100, gamma=0.9)
 
 pi = PGE()
-pi_opt = opt.Adam(pi.parameters(), lr=alpha)
-pi_sched = StepLR(pi_opt, step_size=100, gamma=0.9)
+pi_opt = opt.Adam(pi.parameters(), lr=beta)
+pi_sched = StepLR(pi_opt, step_size=100, gamma=0.95)
 
 replay_memory = ReplayMemory(REPLAY_MEMORY_SIZE)
 
@@ -81,7 +82,7 @@ epsilon_values = []
 fst = lambda t: t[0]
 snd = lambda t: t[1]
 
-fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
+fig, (ax1, ax2) = plt.subplots(1, 2)
 
 def plot():
     ax1.set_title('Episode Durations')
@@ -92,9 +93,6 @@ def plot():
     ax2.set_title('Losses')
     ax2.plot(list(map(fst, per_episode_v_losses)), list(map(snd, per_episode_v_losses)), color="blue")
     ax2.plot(list(map(fst, per_episode_pi_losses)), list(map(snd, per_episode_pi_losses)), color="red")
-    #
-    # ax3.set_title('Epsilon')
-    # ax3.plot(list(map(fst, epsilon_values)), list(map(snd, epsilon_values)), color="blue")
 
     plt.pause(0.001)
 
@@ -129,7 +127,7 @@ def prepare_minibatch(batch):
 
 # RL Loop
 
-for i in tqdm(range(total_episodes), desc="running episodes"):
+for i in tqdm(range(total_episodes), desc="policy gradient"):
 
     s, done = reset(), False
     probs = pi(s)
