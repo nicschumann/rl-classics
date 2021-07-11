@@ -101,12 +101,12 @@ def plot():
 
 def prepare_minibatch(batch):
     s = torch.cat([b[0] for b in batch]).reshape(-1, STATE_SPACE_SIZE)
-    a = F.one_hot(torch.tensor([b[1] for b in batch]).long())
+    a = F.one_hot(torch.tensor([b[1] for b in batch]).long(), num_classes=ACTION_SPACE_SIZE)
 
     r = torch.tensor([b[2] for b in batch])
 
     s_prime = torch.cat([b[3] for b in batch]).reshape(-1, STATE_SPACE_SIZE)
-    a_prime = F.one_hot(torch.tensor([b[4] for b in batch]).long())
+    a_prime = F.one_hot(torch.tensor([b[4] for b in batch]).long(), num_classes=ACTION_SPACE_SIZE)
 
     # calculate predicted values in batch
     values = torch.sum(q(s) * a, dim=1)
